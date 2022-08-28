@@ -1,21 +1,27 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../firebase';
+import { useAuthState } from 'react-firebase-hooks/auth';
 import { Box, Button, FormControl, TextField } from '@mui/material';
 import { useRouter } from 'next/router';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import { authState, spinnerState } from '../../store';
 
 const Login = () => {
+  const [user] = useAuthState(auth);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
-  const setCurrentUser = useSetRecoilState<any>(authState);
+  const [currentUser, setCurrentUser] = useRecoilState<any>(authState);
   const setSpinner = useSetRecoilState<any>(spinnerState);
 
-  if (auth.currentUser !== null) {
-    router.push('/');
-  }
+  useEffect(() => {
+    if (user) {
+      setCurrentUser(user.uid);
+      router.push('/');
+      console.log('ログイン中');
+    }
+  }, [user, router, setCurrentUser]);
 
   const signInUser = () => {
     setSpinner(true);
@@ -25,8 +31,6 @@ const Login = () => {
         const user = userCredential.user;
         setCurrentUser(user.uid);
         router.push('/');
-        console.log(user.uid);
-        // ...
       })
       .catch((error) => {
         console.log(error.code);
@@ -65,6 +69,7 @@ const Login = () => {
             label='Email'
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            autoFocus
           />
           <TextField
             sx={{ m: 2, width: '300px' }}

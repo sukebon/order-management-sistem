@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { createUserWithEmailAndPassword, User } from 'firebase/auth';
+import {
+  createUserWithEmailAndPassword,
+  updateProfile,
+  User,
+} from 'firebase/auth';
 import { auth } from '../../firebase';
 import { Box, Button, FormControl, TextField } from '@mui/material';
 import { useRouter } from 'next/router';
@@ -20,8 +24,16 @@ const Register = () => {
       .then((userCredential) => {
         const user = userCredential.user;
         setCurrentUser(user.uid);
-        alert('登録しました');
-        router.push('/');
+        updateProfile(user, {
+          displayName: name,
+        })
+          .then(() => {
+            alert('登録しました');
+            router.push('/');
+          })
+          .catch((error) => {
+            console.log(error);
+          });
       })
       .catch((error) => {
         alert('失敗しました');

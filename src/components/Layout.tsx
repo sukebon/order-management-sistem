@@ -26,7 +26,7 @@ const Layout: NextPage<Props> = ({ children }) => {
           }}
         >
           <Sidebar />
-          <Box width='100%'>
+          <Box width='100%' position='relative'>
             <Header />
             {children}
           </Box>
